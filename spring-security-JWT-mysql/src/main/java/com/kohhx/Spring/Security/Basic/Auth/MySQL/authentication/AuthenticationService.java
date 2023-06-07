@@ -24,7 +24,7 @@ public class AuthenticationService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public String registerUser(UserRegistration userRegistration) throws DuplicateResourceException {
+    public User registerUser(UserRegistration userRegistration) throws DuplicateResourceException {
         if (userRepository.existsUserByEmail(userRegistration.email())){
             throw new DuplicateResourceException("Email already exist!");
         }
@@ -36,7 +36,8 @@ public class AuthenticationService {
             user.addRole(roleFound);
         });
 
-        userRepository.save(user);
-        return "User Registered";
+        User userSaved = userRepository.save(user);
+        System.out.println(userSaved.getRolesList());
+        return userSaved;
     }
 }

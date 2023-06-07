@@ -3,6 +3,7 @@ package com.kohhx.Spring.Security.Basic.Auth.MySQL.authentication;
 import com.kohhx.Spring.Security.Basic.Auth.MySQL.DTO.AuthRequest;
 import com.kohhx.Spring.Security.Basic.Auth.MySQL.DTO.UserRegistration;
 import com.kohhx.Spring.Security.Basic.Auth.MySQL.DuplicateResourceException;
+import com.kohhx.Spring.Security.Basic.Auth.MySQL.entity.User;
 import com.kohhx.Spring.Security.Basic.Auth.MySQL.jwt.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,17 +38,16 @@ public class AuthenticationController {
         System.out.println(userRegistration);
         System.out.println(Arrays.toString(userRegistration.roles()));
             try {
-                var message = authenticationService.registerUser(userRegistration);
-                return new ResponseEntity<>(message, HttpStatus.CREATED);
+                User user = authenticationService.registerUser(userRegistration);
+                String token = jwtService.generateToken(user.getUsername());
+                return new ResponseEntity<>(token, HttpStatus.CREATED);
             } catch (DuplicateResourceException e) {
                 throw new RuntimeException(e);
             }
     }
 
-
     @PostMapping("/api/login")
     public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-       
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),
                 authRequest.getPassword()));
